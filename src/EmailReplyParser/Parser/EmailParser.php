@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the EmailReplyParser package.
  * For the full copyright and license information, please view the LICENSE
@@ -18,10 +20,10 @@ use EmailReplyParser\Fragment;
  */
 class EmailParser
 {
-    const QUOTE_REGEX = '/^>+/s';
+    public const QUOTE_REGEX = '/^>+/s';
 
     /**
-     * Regex to match signatures
+     * Regex to match signatures.
      *
      * @var string
      */
@@ -30,7 +32,7 @@ class EmailParser
     /**
      * @var string[]
      */
-    private $quoteHeadersRegex = array(
+    private $quoteHeadersRegex = [
         '/^\s*(On(?:(?!^>*\s*On\b|\bwrote:).){0,1000}wrote:)$/ms', // On DATE, NAME <EMAIL> wrote:
         '/^\s*(Le(?:(?!^>*\s*Le\b|\bécrit:).){0,1000}écrit :)$/ms', // Le DATE, NAME <EMAIL> a écrit :
         '/^\s*(El(?:(?!^>*\s*El\b|\bescribió:).){0,1000}escribió:)$/ms', // El DATE, NAME <EMAIL> escribió:
@@ -51,23 +53,23 @@ class EmailParser
         '/^\s*(Da\s?:.+\s?(\[|<).+(\]|>))/mu', // "Da: NAME <EMAIL>" OR "Da : NAME <EMAIL>" OR "Da : NAME<EMAIL>"  (With support whitespace before start and before <)
         '/^(20[0-9]{2}\-(?:0?[1-9]|1[012])\-(?:0?[0-9]|[1-2][0-9]|3[01]|[1-9])\s[0-2]?[0-9]:\d{2}\s.+?:)$/ms', // 20YY-MM-DD HH:II GMT+01:00 NAME <EMAIL>:
         '/^\s*([a-z]{3,4}\.\s.+\sskrev\s.+:)$/ms', // DATE skrev NAME <EMAIL>:
-    );
+    ];
 
     /**
      * @var FragmentDTO[]
      */
-    private $fragments = array();
+    private $fragments = [];
 
     /**
      * Parse a text which represents an email and splits it into fragments.
      *
-     * @param string $text A text.
+     * @param string $text a text
      *
      * @return Email
      */
     public function parse($text)
     {
-        $text = str_replace(array("\r\n", "\r"), "\n", $text);
+        $text = str_replace(["\r\n", "\r"], "\n", $text);
 
         foreach ($this->quoteHeadersRegex as $regex) {
             if (preg_match($regex, $text, $matches)) {
@@ -77,7 +79,7 @@ class EmailParser
 
         $fragment = null;
         $text_array = explode("\n", $text);
-        while (($line = array_pop($text_array)) !== NULL) {
+        while (null !== ($line = array_pop($text_array))) {
             $line = ltrim($line, "\n");
 
             if (!$this->isSignature($line)) {
@@ -120,7 +122,7 @@ class EmailParser
 
         $email = $this->createEmail($this->fragments);
 
-        $this->fragments = array();
+        $this->fragments = [];
 
         return $email;
     }
@@ -147,6 +149,7 @@ class EmailParser
 
     /**
      * @return string
+     *
      * @since 2.7.0
      */
     public function getSignatureRegex()
@@ -158,6 +161,7 @@ class EmailParser
      * @param string $signatureRegex
      *
      * @return EmailParser
+     *
      * @since 2.7.0
      */
     public function setSignatureRegex($signatureRegex)
@@ -174,7 +178,7 @@ class EmailParser
      */
     protected function createEmail(array $fragmentDTOs)
     {
-        $fragments = array();
+        $fragments = [];
         foreach ($fragmentDTOs as $fragment) {
             $fragments[] = new Fragment(
                 preg_replace("/^\n/", '', implode("\n", $fragment->lines)),
@@ -205,6 +209,7 @@ class EmailParser
 
     /**
      * @param string $line
+     *
      * @return bool
      */
     private function isQuote($line)
@@ -219,8 +224,9 @@ class EmailParser
 
     /**
      * @param FragmentDTO $fragment
-     * @param string  $line
-     * @param boolean $isQuoted
+     * @param string      $line
+     * @param bool        $isQuoted
+     *
      * @return bool
      */
     private function isFragmentLine(FragmentDTO $fragment, $line, $isQuoted)

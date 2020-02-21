@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the EmailReplyParser package.
  * For the full copyright and license information, please view the LICENSE
@@ -18,20 +20,20 @@ class FragmentDTO
     /**
      * @var string[]
      */
-    public $lines = array();
+    public $lines = [];
 
     /**
-     * @var boolean
+     * @var bool
      */
     public $isHidden = false;
 
     /**
-     * @var boolean
+     * @var bool
      */
     public $isSignature = false;
 
     /**
-     * @var boolean
+     * @var bool
      */
     public $isQuoted = false;
 }

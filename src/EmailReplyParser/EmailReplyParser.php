@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the EmailReplyParser package.
  * For the full copyright and license information, please view the LICENSE
@@ -18,7 +20,7 @@ use EmailReplyParser\Parser\EmailParser;
 class EmailReplyParser
 {
     /**
-     * @param string $text An email as text.
+     * @param string $text an email as text
      *
      * @return Email
      */
@@ -30,7 +32,7 @@ class EmailReplyParser
     }
 
     /**
-     * @param string $text An email as text.
+     * @param string $text an email as text
      *
      * @return string
      */

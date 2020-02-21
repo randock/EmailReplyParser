@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the EmailReplyParser package.
  * For the full copyright and license information, please view the LICENSE
@@ -21,32 +23,37 @@ final class Fragment
     private $content;
 
     /**
-     * @var boolean
+     * @var bool
      */
     private $isHidden;
 
     /**
-     * @var boolean
+     * @var bool
      */
     private $isSignature;
 
     /**
-     * @var boolean
+     * @var bool
      */
     private $isQuoted;
 
     /**
-     * @param string  $content
-     * @param boolean $isHidden
-     * @param boolean $isSignature
-     * @param boolean $isQuoted
+     * @param string $content
+     * @param bool   $isHidden
+     * @param bool   $isSignature
+     * @param bool   $isQuoted
      */
     public function __construct($content, $isHidden, $isSignature, $isQuoted)
     {
-        $this->content     = $content;
-        $this->isHidden    = $isHidden;
+        $this->content = $content;
+        $this->isHidden = $isHidden;
         $this->isSignature = $isSignature;
-        $this->isQuoted    = $isQuoted;
+        $this->isQuoted = $isQuoted;
+    }
+
+    public function __toString()
+    {
+        return $this->getContent();
     }
 
     /**
@@ -58,7 +65,7 @@ final class Fragment
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isHidden()
     {
@@ -66,7 +73,7 @@ final class Fragment
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isSignature()
     {
@@ -74,7 +81,7 @@ final class Fragment
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isQuoted()
     {
@@ -82,15 +89,10 @@ final class Fragment
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isEmpty()
     {
         return '' === str_replace("\n", '', $this->getContent());
-    }
-
-    public function __toString()
-    {
-        return $this->getContent();
     }
 }
