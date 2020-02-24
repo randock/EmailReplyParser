@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the EmailReplyParser package.
  * For the full copyright and license information, please view the LICENSE
@@ -23,7 +25,7 @@ final class Email
     /**
      * @param Fragment[] $fragments
      */
-    public function __construct(array $fragments = array())
+    public function __construct(array $fragments = [])
     {
         $this->fragments = $fragments;
     }

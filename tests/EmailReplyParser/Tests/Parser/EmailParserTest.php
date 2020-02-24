@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EmailReplyParser\Tests\Parser;
 
-use EmailReplyParser\Parser\EmailParser;
 use EmailReplyParser\Tests\TestCase;
+use EmailReplyParser\Parser\EmailParser;
 
 class EmailParserTest extends TestCase
 {
-    const COMMON_FIRST_FRAGMENT = 'Fusce bibendum, quam hendrerit sagittis tempor, dui turpis tempus erat, pharetra sodales ante sem sit amet metus.
+    public const COMMON_FIRST_FRAGMENT = 'Fusce bibendum, quam hendrerit sagittis tempor, dui turpis tempus erat, pharetra sodales ante sem sit amet metus.
 Nulla malesuada, orci non vulputate lobortis, massa felis pharetra ex, convallis consectetur ex libero eget ante.
 Nam vel turpis posuere, rhoncus ligula in, venenatis orci. Duis interdum venenatis ex a rutrum.
 Duis ut libero eu lectus consequat consequat ut vel lorem. Vestibulum convallis lectus urna,
@@ -25,7 +27,7 @@ et mollis ligula rutrum quis. Fusce sed odio id arcu varius aliquet nec nec nibh
 
     public function testReadsSimpleBody()
     {
-        $email     = $this->parser->parse($this->getFixtures('email_1.txt'));
+        $email = $this->parser->parse($this->getFixtures('email_1.txt'));
         $fragments = $email->getFragments();
 
         $this->assertCount(3, $fragments);
@@ -42,7 +44,7 @@ et mollis ligula rutrum quis. Fusce sed odio id arcu varius aliquet nec nec nibh
         $this->assertTrue($fragments[1]->isHidden());
         $this->assertTrue($fragments[2]->isHidden());
 
-        $this->assertEquals(<<<EMAIL
+        $this->assertSame(<<<'EMAIL'
 Hi folks
 
 What is the best way to clear a Riak bucket of all key, values after
@@ -52,7 +54,7 @@ I am currently using the Java HTTP API.
 EMAIL
         , (string) $fragments[0]);
 
-        $this->assertEquals("-Abhishek Kona\n\n", (string) $fragments[1]);
+        $this->assertSame("-Abhishek Kona\n\n", (string) $fragments[1]);
     }
 
     public function testReusesParser()
@@ -66,7 +68,7 @@ EMAIL
 
     public function testReadsTopPost()
     {
-        $email     = $this->parser->parse($this->getFixtures('email_3.txt'));
+        $email = $this->parser->parse($this->getFixtures('email_3.txt'));
         $fragments = $email->getFragments();
 
         $this->assertCount(5, $fragments);
@@ -97,11 +99,11 @@ EMAIL
 
     public function testReadsBottomPost()
     {
-        $email     = $this->parser->parse($this->getFixtures('email_2.txt'));
+        $email = $this->parser->parse($this->getFixtures('email_2.txt'));
         $fragments = $email->getFragments();
 
         $this->assertCount(6, $fragments);
-        $this->assertEquals('Hi,', (string) $fragments[0]);
+        $this->assertSame('Hi,', (string) $fragments[0]);
         $this->assertRegExp('/^On [^\:]+\:/', (string) $fragments[1]);
         $this->assertRegExp('/^You can list/', (string) $fragments[2]);
         $this->assertRegExp('/^>/', (string) $fragments[3]);
@@ -110,7 +112,7 @@ EMAIL
 
     public function testRecognizesDateStringAboveQuote()
     {
-        $email     = $this->parser->parse($this->getFixtures('email_4.txt'));
+        $email = $this->parser->parse($this->getFixtures('email_4.txt'));
         $fragments = $email->getFragments();
 
         $this->assertRegExp('/^Awesome/', (string) $fragments[0]);
@@ -123,7 +125,7 @@ EMAIL
         $input = 'The Quick Brown Fox Jumps Over The Lazy Dog';
         $this->parser->parse($input);
 
-        $this->assertEquals('The Quick Brown Fox Jumps Over The Lazy Dog', $input);
+        $this->assertSame('The Quick Brown Fox Jumps Over The Lazy Dog', $input);
     }
 
     public function testComplexBodyWithOnlyOneFragment()
@@ -135,7 +137,7 @@ EMAIL
 
     public function testDealsWithMultilineReplyHeaders()
     {
-        $email     = $this->parser->parse($this->getFixtures('email_6.txt'));
+        $email = $this->parser->parse($this->getFixtures('email_6.txt'));
         $fragments = $email->getFragments();
 
         $this->assertRegExp('/^I get/', (string) $fragments[0]);
@@ -145,28 +147,28 @@ EMAIL
 
     public function testEmailItalian()
     {
-        $email     = $this->parser->parse($this->getFixtures('email_7.txt'));
+        $email = $this->parser->parse($this->getFixtures('email_7.txt'));
         $fragments = $email->getFragments();
-        $this->assertEquals(static::COMMON_FIRST_FRAGMENT, trim($fragments[0]));
+        $this->assertSame(static::COMMON_FIRST_FRAGMENT, trim((string) $fragments[0]));
     }
 
     public function testEmailDutch()
     {
-        $email     = $this->parser->parse($this->getFixtures('email_8.txt'));
+        $email = $this->parser->parse($this->getFixtures('email_8.txt'));
         $fragments = $email->getFragments();
-        $this->assertEquals(static::COMMON_FIRST_FRAGMENT, trim($fragments[0]));
+        $this->assertSame(static::COMMON_FIRST_FRAGMENT, trim((string) $fragments[0]));
     }
 
     public function testEmailUkrainian()
     {
-        $email     = $this->parser->parse($this->getFixtures('email_23.txt'));
+        $email = $this->parser->parse($this->getFixtures('email_23.txt'));
         $fragments = $email->getFragments();
-        $this->assertEquals(static::COMMON_FIRST_FRAGMENT, trim($fragments[0]));
+        $this->assertSame(static::COMMON_FIRST_FRAGMENT, trim((string) $fragments[0]));
 
         // Find flaw in original Ukrainian regex "/^[\S\s]+ (написа(л|ла|в)+|wrote)+:/msu"
-        $email     = $this->parser->parse($this->getFixtures('email_23_1.txt'));
+        $email = $this->parser->parse($this->getFixtures('email_23_1.txt'));
         $fragments = $email->getFragments();
-        $this->assertEquals(<<<EMAIL
+        $this->assertSame(<<<'EMAIL'
 Fusce bibendum, quam hendrerit sagittis tempor, dui turpis tempus erat, pharetra sodales ante sem sit amet metus.
 Nulla malesuada, orci non vulputate lobortis, massa felis pharetra ex, convallis consectetur ex libero eget ante.
 Nam vel turpis posuere, rhoncus ligula in, venenatis orci. Duis interdum venenatis ex a rutrum.
@@ -181,79 +183,79 @@ EMAIL
 
     public function testEmailSignatureWithEqual()
     {
-        $email     = $this->parser->parse($this->getFixtures('email_9.txt'));
+        $email = $this->parser->parse($this->getFixtures('email_9.txt'));
         $fragments = $email->getFragments();
-        $this->assertEquals(static::COMMON_FIRST_FRAGMENT, trim($fragments[0]));
+        $this->assertSame(static::COMMON_FIRST_FRAGMENT, trim((string) $fragments[0]));
     }
 
     public function testEmailHotmail()
     {
-        $email     = $this->parser->parse($this->getFixtures('email_10.txt'));
+        $email = $this->parser->parse($this->getFixtures('email_10.txt'));
         $fragments = $email->getFragments();
-        $this->assertEquals(static::COMMON_FIRST_FRAGMENT, trim($fragments[0]));
+        $this->assertSame(static::COMMON_FIRST_FRAGMENT, trim((string) $fragments[0]));
     }
 
     public function testEmailWhitespaceBeforeHeader()
     {
-        $email     = $this->parser->parse($this->getFixtures('email_11.txt'));
+        $email = $this->parser->parse($this->getFixtures('email_11.txt'));
         $fragments = $email->getFragments();
-        $this->assertEquals(static::COMMON_FIRST_FRAGMENT, trim($fragments[0]));
+        $this->assertSame(static::COMMON_FIRST_FRAGMENT, trim((string) $fragments[0]));
     }
 
     public function testEmailWithSquareBrackets()
     {
-        $email     = $this->parser->parse($this->getFixtures('email_12.txt'));
+        $email = $this->parser->parse($this->getFixtures('email_12.txt'));
         $fragments = $email->getFragments();
-        $this->assertEquals(static::COMMON_FIRST_FRAGMENT, trim($fragments[0]));
+        $this->assertSame(static::COMMON_FIRST_FRAGMENT, trim((string) $fragments[0]));
     }
 
     public function testEmailDaIntoItalian()
     {
-        $email     = $this->parser->parse($this->getFixtures('email_13.txt'));
+        $email = $this->parser->parse($this->getFixtures('email_13.txt'));
         $fragments = $email->getFragments();
-        $this->assertEquals(static::COMMON_FIRST_FRAGMENT, trim($fragments[0]));
+        $this->assertSame(static::COMMON_FIRST_FRAGMENT, trim((string) $fragments[0]));
     }
 
     public function testEmailHeaderPolish()
     {
-        $email     = $this->parser->parse($this->getFixtures('email_14.txt'));
+        $email = $this->parser->parse($this->getFixtures('email_14.txt'));
         $fragments = $email->getFragments();
-        $this->assertEquals(static::COMMON_FIRST_FRAGMENT, trim($fragments[0]));
+        $this->assertSame(static::COMMON_FIRST_FRAGMENT, trim((string) $fragments[0]));
     }
 
     public function testEmailHeaderSimplifiedChinese()
     {
-        $email     = $this->parser->parse($this->getFixtures('email_22.txt'));
+        $email = $this->parser->parse($this->getFixtures('email_22.txt'));
         $fragments = $email->getFragments();
-        $this->assertEquals(static::COMMON_FIRST_FRAGMENT, trim($fragments[0]));
+        $this->assertSame(static::COMMON_FIRST_FRAGMENT, trim((string) $fragments[0]));
     }
 
     public function testEmailSentFromMy()
     {
-        $email     = $this->parser->parse($this->getFixtures('email_15.txt'));
+        $email = $this->parser->parse($this->getFixtures('email_15.txt'));
         $fragments = $email->getFragments();
-        $this->assertEquals(static::COMMON_FIRST_FRAGMENT, trim($fragments[0]));
+        $this->assertSame(static::COMMON_FIRST_FRAGMENT, trim((string) $fragments[0]));
     }
 
     public function testEmailHeaderPolishWithDniaAndNapisala()
     {
-        $email     = $this->parser->parse($this->getFixtures('email_16.txt'));
+        $email = $this->parser->parse($this->getFixtures('email_16.txt'));
         $fragments = $email->getFragments();
-        $this->assertEquals(static::COMMON_FIRST_FRAGMENT, trim($fragments[0]));
+        $this->assertSame(static::COMMON_FIRST_FRAGMENT, trim((string) $fragments[0]));
     }
 
     public function testEmailHeaderPolishWithDateInIso8601()
     {
-        $email     = $this->parser->parse($this->getFixtures('email_17.txt'));
+        $email = $this->parser->parse($this->getFixtures('email_17.txt'));
         $fragments = $email->getFragments();
-        $this->assertEquals(static::COMMON_FIRST_FRAGMENT, trim($fragments[0]));
+        $this->assertSame(static::COMMON_FIRST_FRAGMENT, trim((string) $fragments[0]));
     }
 
     public function testEmailOutlookEn()
     {
-        $email     = $this->parser->parse($this->getFixtures('email_18.txt'));
+        $email = $this->parser->parse($this->getFixtures('email_18.txt'));
         $fragments = $email->getFragments();
-        $this->assertEquals(static::COMMON_FIRST_FRAGMENT, trim($fragments[0]));
+        $this->assertSame(static::COMMON_FIRST_FRAGMENT, trim((string) $fragments[0]));
     }
 
     public function testGetVisibleTextReturnsOnlyVisibleFragments()
@@ -263,19 +265,19 @@ EMAIL
             return !$fragment->isHidden();
         });
 
-        $this->assertEquals(rtrim(implode("\n", $visibleFragments)), $email->getVisibleText());
+        $this->assertSame(rtrim(implode("\n", $visibleFragments)), $email->getVisibleText());
     }
 
     public function testEmailGmailNo()
     {
-        $email     = $this->parser->parse($this->getFixtures('email_norwegian_gmail.txt'));
+        $email = $this->parser->parse($this->getFixtures('email_norwegian_gmail.txt'));
         $fragments = $email->getFragments();
-        $this->assertEquals(static::COMMON_FIRST_FRAGMENT, trim($fragments[0]));
+        $this->assertSame(static::COMMON_FIRST_FRAGMENT, trim((string) $fragments[0]));
     }
 
     public function testReadsEmailWithCorrectSignature()
     {
-        $email     = $this->parser->parse($this->getFixtures('correct_sig.txt'));
+        $email = $this->parser->parse($this->getFixtures('correct_sig.txt'));
         $fragments = $email->getFragments();
 
         $this->assertCount(2, $fragments);
@@ -294,7 +296,7 @@ EMAIL
 
     public function testReadsEmailWithSignatureWithNoEmptyLineAbove()
     {
-        $email     = $this->parser->parse($this->getFixtures('sig_no_empty_line.txt'));
+        $email = $this->parser->parse($this->getFixtures('sig_no_empty_line.txt'));
         $fragments = $email->getFragments();
 
         $this->assertCount(2, $fragments);
@@ -316,7 +318,7 @@ EMAIL
         // A common convention is to use "-- " as delimitor, but trailing spaces are often stripped by IDEs, so add them here
         $content = str_replace('--', '-- ', $this->getFixtures('correct_sig.txt'));
 
-        $email     = $this->parser->parse($content);
+        $email = $this->parser->parse($content);
         $fragments = $email->getFragments();
 
         $this->assertCount(2, $fragments);
@@ -338,7 +340,7 @@ EMAIL
         // A common convention is to use "-- " as delimitor, but trailing spaces are often stripped by IDEs, so add them here
         $content = str_replace('--', '-- ', $this->getFixtures('sig_no_empty_line.txt'));
 
-        $email     = $this->parser->parse($content);
+        $email = $this->parser->parse($content);
         $fragments = $email->getFragments();
 
         $this->assertCount(2, $fragments);
@@ -357,7 +359,7 @@ EMAIL
 
     public function testOneIsNotOn()
     {
-        $email     = $this->parser->parse($this->getFixtures('email_one_is_not_on.txt'));
+        $email = $this->parser->parse($this->getFixtures('email_one_is_not_on.txt'));
         $fragments = $email->getFragments();
 
         $this->assertRegExp('/One outstanding question/', (string) $fragments[0]);
@@ -366,18 +368,18 @@ EMAIL
 
     public function testCustomQuoteHeader()
     {
-        $regex   = $this->parser->getQuoteHeadersRegex();
+        $regex = $this->parser->getQuoteHeadersRegex();
         $regex[] = '/^(\d{4}(.+)rta:)$/ms';
         $this->parser->setQuoteHeadersRegex($regex);
 
         $email = $this->parser->parse($this->getFixtures('email_custom_quote_header.txt'));
 
-        $this->assertEquals('Thank you!', $email->getVisibleText());
+        $this->assertSame('Thank you!', $email->getVisibleText());
     }
 
     public function testCustomQuoteHeader2()
     {
-        $regex   = $this->parser->getQuoteHeadersRegex();
+        $regex = $this->parser->getQuoteHeadersRegex();
         $regex[] = '/^(From\: .+ .+test\@webdomain\.com.+)/ms';
         $this->parser->setQuoteHeadersRegex($regex);
 
@@ -385,14 +387,14 @@ EMAIL
         $fragments = $email->getFragments();
         $this->assertCount(2, $fragments);
 
-        $this->assertEquals('Thank you very much.', $email->getVisibleText());
+        $this->assertSame('Thank you very much.', $email->getVisibleText());
         $this->assertTrue($fragments[1]->isHidden());
         $this->assertTrue($fragments[1]->isQuoted());
     }
 
     public function testCustomQuoteHeader3()
     {
-        $regex   = $this->parser->getQuoteHeadersRegex();
+        $regex = $this->parser->getQuoteHeadersRegex();
         $regex[] = '/^(De \: .+ .+someone\@yahoo.fr\.com.+)/ms';
         $this->parser->setQuoteHeadersRegex($regex);
 
@@ -400,7 +402,7 @@ EMAIL
         $fragments = $email->getFragments();
         $this->assertCount(2, $fragments);
 
-        $this->assertEquals("bonjour,
+        $this->assertSame("bonjour,
 je n'ai pas eu de retour sur ma précision..
 merci d'avance", $email->getVisibleText());
         $this->assertTrue($fragments[1]->isHidden());
@@ -452,38 +454,42 @@ merci d'avance", $email->getVisibleText());
 
     /**
      * @dataProvider getDateFormats
+     *
+     * @param mixed $date
      */
     public function testDateQuoteHeader($date)
     {
         $email = $this->parser->parse(str_replace('[DATE]', $date, $this->getFixtures('email_with_date_headers.txt')));
 
-        $this->assertEquals('Thank you very much.', $email->getVisibleText());
+        $this->assertSame('Thank you very much.', $email->getVisibleText());
     }
 
     public function getDateFormats()
     {
-        return array(
-            array('On Tue, 2011-03-01 at 18:02 +0530, Abhishek Kona wrote:'),
-            array('2014-03-20 8:48 GMT+01:00 Rémi Dolan <do_not_reply@dolan.com>:'), // Gmail
-            array('2014-03-20 20:48 GMT+01:00 Rémi Dolan <do_not_reply@dolan.com>:'), // Gmail
-            array('2014-03-09 20:48 GMT+01:00 Rémi Dolan <do_not_reply@dolan.com>:'), // Gmail
-            array('Le 19 mars 2014 10:37, Cédric Lombardot <cedric.lombardot@gmail.com> a écrit :'), // Gmail
-            array('El 19/03/2014 11:34, Juan Pérez <juan.perez@mailcatch.com> escribió:'), // Gmail in spanish
-            array('W dniu 7 stycznia 2015 15:24 użytkownik Paweł Brzoski <pbrzoski91@gmail.com> napisał:'), //Gmail in polish
-            array('Le 19/03/2014 11:34, Georges du chemin a écrit :'), // Thunderbird
-            array('W dniu 2015-01-07 14:23, pbrzoski91@gmail.com pisze: '), // Thunderbird in polish
-            array('Den 08/06/2015 kl. 21.21 skrev Test user <test@example.com>:'), // Danish
-            array('Am 25.06.2015 um 10:55 schrieb Test user:'), // German 1
-            array('Test user <test@example.com> schrieb:'), // German 2
-            array('在 2016年11月8日，下午2:23，Test user <test@example.com> 写道：'), // Chinese Apple Mail iPhone parsed html
-            array('2016. 11. 8. 오후 12:39 Test user <test@example.com> 작성:'), // Korean Apple Mail iPhone
-            array('2016/11/08 14:26、Test user <test@example.com> のメッセージ:'), // Japanese Apple Mail iPhone
-            array("tir. 18. apr. 2017 kl. 13:09 skrev Test user <test@example.com>:"), // Norwegian Gmail
-        );
+        return [
+            ['On Tue, 2011-03-01 at 18:02 +0530, Abhishek Kona wrote:'],
+            ['2014-03-20 8:48 GMT+01:00 Rémi Dolan <do_not_reply@dolan.com>:'], // Gmail
+            ['2014-03-20 20:48 GMT+01:00 Rémi Dolan <do_not_reply@dolan.com>:'], // Gmail
+            ['2014-03-09 20:48 GMT+01:00 Rémi Dolan <do_not_reply@dolan.com>:'], // Gmail
+            ['Le 19 mars 2014 10:37, Cédric Lombardot <cedric.lombardot@gmail.com> a écrit :'], // Gmail
+            ['El 19/03/2014 11:34, Juan Pérez <juan.perez@mailcatch.com> escribió:'], // Gmail in spanish
+            ['W dniu 7 stycznia 2015 15:24 użytkownik Paweł Brzoski <pbrzoski91@gmail.com> napisał:'], //Gmail in polish
+            ['Le 19/03/2014 11:34, Georges du chemin a écrit :'], // Thunderbird
+            ['W dniu 2015-01-07 14:23, pbrzoski91@gmail.com pisze: '], // Thunderbird in polish
+            ['Den 08/06/2015 kl. 21.21 skrev Test user <test@example.com>:'], // Danish
+            ['Am 25.06.2015 um 10:55 schrieb Test user:'], // German 1
+            ['Test user <test@example.com> schrieb:'], // German 2
+            ['在 2016年11月8日，下午2:23，Test user <test@example.com> 写道：'], // Chinese Apple Mail iPhone parsed html
+            ['2016. 11. 8. 오후 12:39 Test user <test@example.com> 작성:'], // Korean Apple Mail iPhone
+            ['2016/11/08 14:26、Test user <test@example.com> のメッセージ:'], // Japanese Apple Mail iPhone
+            ['tir. 18. apr. 2017 kl. 13:09 skrev Test user <test@example.com>:'], // Norwegian Gmail
+        ];
     }
 
     /**
      * @dataProvider getFromHeaders
+     *
+     * @param mixed $from
      */
     public function testFromQuoteHeader($from)
     {
@@ -499,11 +505,11 @@ CONTENT
 
     public function getFromHeaders()
     {
-        return array(
-            array('From: foo@example.com <foo@example.com>'),
-            array('De: foo@example.com <foo@example.com>'),
-            array('Van: foo@example.com <foo@example.com>'),
-            array('Da: foo@example.com <foo@example.com>'),
-        );
+        return [
+            ['From: foo@example.com <foo@example.com>'],
+            ['De: foo@example.com <foo@example.com>'],
+            ['Van: foo@example.com <foo@example.com>'],
+            ['Da: foo@example.com <foo@example.com>'],
+        ];
     }
 }

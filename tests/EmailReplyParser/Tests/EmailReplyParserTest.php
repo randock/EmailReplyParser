@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EmailReplyParser\Tests;
 
 use EmailReplyParser\EmailReplyParser;
@@ -26,7 +28,7 @@ class EmailReplyParserTest extends TestCase
     {
         $body = $this->getFixtures('email_2.txt');
 
-        $this->assertEquals(<<<EMAIL
+        $this->assertSame(<<<'EMAIL'
 Hi,
 You can list the keys for the bucket and call delete for each. Or if you
 put the keys (and kept track of them in your test) you can delete them
@@ -62,28 +64,28 @@ EMAIL
     {
         $body = $this->getFixtures('email_iphone.txt');
 
-        $this->assertEquals('Here is another email', EmailReplyParser::parseReply($body));
+        $this->assertSame('Here is another email', EmailReplyParser::parseReply($body));
     }
 
     public function testParseOutSentFromBlackBerry()
     {
         $body = $this->getFixtures('email_blackberry.txt');
 
-        $this->assertEquals('Here is another email', EmailReplyParser::parseReply($body));
+        $this->assertSame('Here is another email', EmailReplyParser::parseReply($body));
     }
 
     public function testParseOutSendFromMultiwordMobileDevice()
     {
         $body = $this->getFixtures('email_multi_word_sent_from_my_mobile_device.txt');
 
-        $this->assertEquals('Here is another email', EmailReplyParser::parseReply($body));
+        $this->assertSame('Here is another email', EmailReplyParser::parseReply($body));
     }
 
     public function testDoNotParseOutSendFromInRegularSentence()
     {
         $body = $this->getFixtures('email_sent_from_my_not_signature.txt');
 
-        $this->assertEquals(
+        $this->assertSame(
             "Here is another email\n\nSent from my desk, is much easier then my mobile phone.",
             EmailReplyParser::parseReply($body)
         );
@@ -93,14 +95,14 @@ EMAIL
     {
         $body = $this->getFixtures('email_2_1.txt');
 
-        $this->assertEquals('Outlook with a reply', EmailReplyParser::parseReply($body));
+        $this->assertSame('Outlook with a reply', EmailReplyParser::parseReply($body));
     }
 
     public function testRetainsBullets()
     {
         $body = $this->getFixtures('email_bullets.txt');
 
-        $this->assertEquals(
+        $this->assertSame(
             "test 2 this should list second\n\nand have spaces\n\nand retain this formatting\n\n\n   - how about bullets\n   - and another",
             EmailReplyParser::parseReply($body)
         );
@@ -110,7 +112,7 @@ EMAIL
     {
         $body = $this->getFixtures('email_unquoted_reply.txt');
 
-        $this->assertEquals('This is my reply.', EmailReplyParser::parseReply($body));
+        $this->assertSame('This is my reply.', EmailReplyParser::parseReply($body));
     }
 
     public function testEmailThreadPreservesNewLines()
@@ -120,7 +122,7 @@ EMAIL
         $fragments = EmailReplyParser::read($body)
             ->getFragments();
 
-        $this->assertEquals(<<<EMAIL
+        $this->assertSame(<<<'EMAIL'
 On Nov 21, 2014, at 10:18, John Doe <john@doe123.com> wrote:
 
 > Ok. Thanks.
