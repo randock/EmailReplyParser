@@ -220,6 +220,8 @@ class EmailParser
         if ($isSignature && $isForwarding) {
             return false;
         }
+
+        return $isSignature;
     }
 
     /**
