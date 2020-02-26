@@ -30,6 +30,13 @@ class EmailParser
     private $signatureRegex = '/(?:^\s*--|^\s*__|^-\w|^-- $)|(?:^Sent from my (?:\s*\w+){1,4}$)|(?:^={30,}$)$/s';
 
     /**
+     * Regex to match "---------- Forwarded message ----------" lines.
+     *
+     * @var string
+     */
+    private $forwardingMessagePattern = '/^(-+ forwarded message -+)$/i';
+
+    /**
      * @var string[]
      */
     private $quoteHeadersRegex = [
@@ -38,7 +45,7 @@ class EmailParser
         '/^\s*(El(?:(?!^>*\s*El\b|\bescribió:).){0,1000}escribió:)$/ms', // El DATE, NAME <EMAIL> escribió:
         '/^\s*(Il(?:(?!^>*\s*Il\b|\bscritto:).){0,1000}scritto:)$/ms', // Il DATE, NAME <EMAIL> ha scritto:
         '/^[\S\s]+ (написа(л|ла|в)+)+:$/msu', // Everything before написал: not ending on wrote:
-        '/^\s*(Op\s.+?(schreef|geschreven)(.+)?:)$/ms', // Op DATE schreef NAME <EMAIL>:, Op DATE heeft NAME <EMAIL> het volgende geschreven:, Op DATE, NAME (<MAIN>) schreef:
+        '/^\s*(Op\s.+?(schreef|geschreven)(.+)?:?)$/m', // Op DATE schreef NAME <EMAIL>:, Op DATE heeft NAME <EMAIL> het volgende geschreven:, Op DATE, NAME (<MAIN>) schreef:
         '/^\s*((W\sdniu|Dnia)\s.+?(pisze|napisał(\(a\))?):)$/msu', // W dniu DATE, NAME <EMAIL> pisze|napisał:
         '/^\s*(Den\s.+\sskrev\s.+:)$/m', // Den DATE skrev NAME <EMAIL>:
         '/^\s*(Am\s.+\sum\s.+\sschrieb\s.+:)$/m', // Am DATE um TIME schrieb NAME:
@@ -199,12 +206,22 @@ class EmailParser
             }
         }
 
+        if (\preg_match($this->forwardingMessagePattern, $line)) {
+            return true;
+        }
+
         return false;
     }
 
     private function isSignature($line)
     {
-        return preg_match($this->signatureRegex, $line) ? true : false;
+        $isSignature = \preg_match($this->signatureRegex, $line) ? true : false;
+        $isForwarding = \preg_match($this->forwardingMessagePattern, \trim($line));
+        if ($isSignature && $isForwarding) {
+            return false;
+        }
+
+        return $isSignature;
     }
 
     /**
